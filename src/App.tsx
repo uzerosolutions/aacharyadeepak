@@ -1,7 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import './App.css'
 
-const basePath = import.meta.env.BASE_URL
+const basePath = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`
 const galleryHref = `${basePath}gallery/`
 
 type GalleryItem = {
