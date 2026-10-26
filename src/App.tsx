@@ -1,6 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import './App.css'
 
+const basePath = import.meta.env.BASE_URL
+const galleryHref = `${basePath}gallery/`
+
 type GalleryItem = {
   title: string
   category: string
@@ -72,7 +75,6 @@ const ceremonies = [
     summary: 'Complete Vedic marriage rituals with all traditional ceremonies',
     details:
       'Experience a truly sacred Vedic Vivah conducted with pure Sanskrit mantras, explaining the spiritual meaning of Ganesh-Ambika Puja, Kanyadaan, Panigrahana, Agni Parikrama, and the seven sacred vows of Saptapadi.',
-    time: '3 – 5 Hours',
     image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=85',
   },
   {
@@ -82,7 +84,6 @@ const ceremonies = [
     summary: 'House-warming rituals with Vastu Puja for prosperity',
     details:
       'Invite positive cosmic vibrations, Goddess Lakshmi’s abundance, and Vastu Purusha blessings into your new residence with Dwar Puja, Kalash Sthapana, Vastu Mandal Puja, and sacred Havan.',
-    time: '2.5 – 3.5 Hours',
     image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=85',
   },
   {
@@ -92,7 +93,6 @@ const ceremonies = [
     summary: 'Powerful Shiva rituals for peace and protection',
     details:
       'Sacred Rudrabhishek of Lord Shiva using Panchamrit, Ganga Jal from Rishikesh, Bilva leaves, and Bhasma amidst continuous chanting of Sri Rudram and the life-protecting Mahamrityunjaya Mantra.',
-    time: '2 – 3 Hours',
     image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=85',
   },
   {
@@ -102,7 +102,6 @@ const ceremonies = [
     summary: 'Traditional Vishnu Katha and puja for family blessings',
     details:
       'Performed on Purnima, Ekadashi, or special family occasions to invoke Lord Narayana’s grace for harmony, health, career success, and fulfillment of auspicious family wishes.',
-    time: '2 Hours',
     image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=900&q=85',
   },
   {
@@ -112,7 +111,6 @@ const ceremonies = [
     summary: 'Planetary peace and balance rituals for harmony',
     details:
       'Pacify unfavourable planetary transits (Rahu, Ketu, Shani, Mangal) and strengthen benefic planets in your Janam Kundli through Vedic Navagraha Mandal worship, Beej Mantra Jaap, and Samidha Havan.',
-    time: '2.5 Hours',
     image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=85',
   },
   {
@@ -122,7 +120,6 @@ const ceremonies = [
     summary: 'Traditional first haircut ceremony for children',
     details:
       'One of the 16 sacred Shodasha Sanskars (Chudakarana) performed to bless the child with strong immunity, sharp intellect (Tejas), longevity, and divine protection.',
-    time: '1.5 – 2 Hours',
     image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=85',
   },
   {
@@ -132,8 +129,16 @@ const ceremonies = [
     summary: 'Sacred ancestral peace rituals in Rishikesh',
     details:
       'A sacred bridge of gratitude, love, and prayers that connects us to our ancestors. Conducted with complete Vidhi-Vidhan on the holy banks of Maa Ganga.',
-    time: '2 – 3 Hours',
     image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    title: 'Baglamukhi Puja',
+    type: 'Deity Pujas',
+    highlight: 'Protection & Obstacle Resolution',
+    summary: 'A Vedic ritual invoking Goddess Baglamukhi for protection and strength',
+    details:
+      'Baglamukhi Puja is a powerful Vedic ritual dedicated to Goddess Baglamukhi, who represents the cosmic power of stunning and immobilising negative forces. Performing this puja helps individuals overcome enemies, resolve legal battles, and protect themselves from black magic, evil eyes, and hidden adversaries. It acts as a strong shield against financial losses and brings stability, prosperity, and success in business or career. By invoking the Goddess, devotees can clear administrative obstacles, silence malicious gossip, and gain inner strength, mental clarity, and overall peace of mind.',
+    image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=900&q=85',
   },
 ]
 
@@ -236,10 +241,17 @@ const bookingServices = [
   '4. Satyanarayan Katha & Navagraha Puja',
   '5. Mundan Sanskaar & Pind Daan Puja',
   '6. Janam Kundli Analysis',
-  '7. Other Vedic Ritual',
+  '7. Baglamukhi Puja',
+  '8. Other Vedic Ritual',
 ]
 
+function whatsappHref(message: string) {
+  return `https://wa.me/919634195464?text=${encodeURIComponent(message)}`
+}
+
 function App() {
+  const isGalleryPage =
+    window.location.pathname.replace(/\/+$/, '') === `${basePath.replace(/\/+$/, '')}/gallery`
   const [activeService, setActiveService] = useState(0)
   const [activeFilter, setActiveFilter] = useState('All')
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null)
@@ -251,6 +263,30 @@ function App() {
     activeFilter === 'All'
       ? [...customImages, ...galleryItems]
       : [...customImages, ...galleryItems].filter((item) => item.category === activeFilter)
+  const latestGallery = [...customImages, ...galleryItems].slice(0, 4)
+
+  function sectionHref(section: string) {
+    return isGalleryPage ? `${basePath}#${section}` : `#${section}`
+  }
+
+  function renderGalleryCards(items: GalleryItem[]) {
+    return items.map((item, index) => (
+      <article key={`${item.title}-${index}`} className="gallery-card">
+        <button className="gallery-open" type="button" onClick={() => setSelectedImage(item)} aria-label={`View ${item.title}`}>
+          <img src={item.image} alt={item.title} />
+          <span className="gallery-category">{item.category}</span>
+          <span className="gallery-caption"><small>⌖ &nbsp;{item.place}</small><strong>{item.title}</strong></span>
+        </button>
+        <div className="gallery-description">
+          <p>{item.description}</p>
+          <div>
+            <button type="button" onClick={() => setActiveArticle(articles[index % articles.length])}>▤ Read Related Blog</button>
+            <a href={sectionHref('booking')}>Book This Ritual →</a>
+          </div>
+        </div>
+      </article>
+    ))
+  }
 
   function addPhoto(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? [])
@@ -293,22 +329,42 @@ function App() {
       </div>
 
       <header className="site-header">
-        <a href="#home" className="brand">
+        <a href={sectionHref('home')} className="brand">
           <span className="brand-seal">♧</span>
           <span><strong>Acharya Deepak</strong><small>ONLINE VEDIC & RITUALS • RISHIKESH</small></span>
         </a>
         <nav aria-label="Main navigation">
-          <a href="#home">Home</a>
-          <a href="#about">About Acharya</a>
-          <a href="#services">4 Pillars</a>
-          <a href="#ceremonies">7 Featured Pujas</a>
-          <a href="#pitru">Pind Daan</a>
-          <a href="#gallery">Sacred Gallery</a>
-          <a href="#blog">Spiritual Blog</a>
+          <a href={sectionHref('home')}>Home</a>
+          <a href={sectionHref('about')}>About me</a>
+          <a href={sectionHref('services')}>Pillars</a>
+          <a href={sectionHref('ceremonies')}>Featured Pujas</a>
+          <a href={sectionHref('pitru')}>Pind Daan</a>
+          <a href={galleryHref} aria-current={isGalleryPage ? 'page' : undefined}>Sacred Gallery</a>
+          <a href={sectionHref('blog')}>Blogs</a>
         </nav>
-        <a href="#booking" className="button button-primary header-book"><span>▣</span> Book Ritual / Consultation</a>
+        <a href={sectionHref('booking')} className="button button-primary header-book">Book Ritual / Consultation</a>
       </header>
 
+      {isGalleryPage ? (
+        <main className="gallery-page-main">
+          <section className="gallery-section gallery-page section-space">
+            <div className="content-width">
+              <div className="section-title-row gallery-heading">
+                <div>
+                  <span className="pill section-pill">▧ &nbsp;SACRED GALLERY • RISHIKESH</span>
+                  <h2>Divine Moments & Authentic<br />Rituals</h2>
+                  <p>Explore moments from our Deity Pujas, Pind Daan ceremonies, Vedic Sanskars, and live rituals in Rishikesh.</p>
+                </div>
+                <label className="upload-button">⇧ &nbsp;+ Add / Preview Your Own Ritual Photo<input type="file" accept="image/*" multiple onChange={addPhoto} /></label>
+              </div>
+              <div className="filter-row">
+                {galleryFilters.map((filter) => <button type="button" key={filter} onClick={() => setActiveFilter(filter)} className={activeFilter === filter ? 'filter-chip active' : 'filter-chip'}>{filter}</button>)}
+              </div>
+              <div className="gallery-grid">{renderGalleryCards(visibleGallery)}</div>
+            </div>
+          </section>
+        </main>
+      ) : (
       <main>
         <section id="home" className="hero-section">
           <div className="mandala mandala-right" aria-hidden="true" />
@@ -329,8 +385,7 @@ function App() {
             </div>
             <div className="hero-art">
               <div className="hero-arch">
-                <div className="aurora-art" role="img" aria-label="Aurora over the Himalayan foothills" />
-                <div className="arch-label">LIVE FROM RISHIKESH</div>
+                <img className="hero-photo" src={`${basePath}media/acharya-deepak-ritual.jpeg`} alt="Acharya Deepak performing a Vedic ritual" />
                 <div className="arch-caption"><span>✧ &nbsp;PURE विधि-विधान & VEDIC MANTRAS</span><strong>Every Puja Conducted with<br />Personalized Family Sankalp</strong></div>
               </div>
               <div className="floating-sankalp"><span className="mini-icon">♨</span><span><strong>Individual Sankalp</strong><small>Name, Gotra & Nakshatra</small></span></div>
@@ -348,7 +403,7 @@ function App() {
 
         <section id="about" className="about-section content-width section-space">
           <div className="acharya-photo">
-            <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1000&q=85" alt="Peaceful Himalayan landscape in Rishikesh" />
+            <img src={`${basePath}media/acharya-deepak-rishikesh.jpeg`} alt="Acharya Deepak by the Ganges in Rishikesh" />
             <div className="acharya-caption"><div><strong>Acharya Deepak</strong><small>Vedic Rituals Specialist & Astrologer • Holy Rishikesh</small></div><span>♧</span><div className="caption-stats"><b>200+<small>Rituals</small></b><b>8+ Yrs<small>Experience</small></b><b>3<small>Languages</small></b></div></div>
           </div>
           <div className="about-copy">
@@ -377,8 +432,8 @@ function App() {
         </section>
 
         <section id="ceremonies" className="content-width section-space ceremonies-section">
-          <div className="section-title-row"><div><span className="pill section-pill">SACRED CEREMONIES WE PROVIDE</span><h2>7 Signature Vedic Pujas & Sanskars</h2><p>Each ritual is performed with pure Vedic mantras, traditional विधि-विधान, and complete<br /> devotion for peace, protection, and family prosperity.</p></div><a href="#booking" className="button button-outline">Need a Custom Havan or Puja? Enquire Here →</a></div>
-          <div className="ceremony-grid">{ceremonies.map((ceremony, index) => <article key={ceremony.title} className="ceremony-card"><div className="ceremony-photo" style={{ backgroundImage: `linear-gradient(0deg, rgba(61, 25, 20, .96), transparent 62%), url("${ceremony.image}")` }}><span className="ceremony-type">#{String(index + 1).padStart(2, '0')} • {ceremony.type}</span><span className="ceremony-highlight">✧ &nbsp;{ceremony.highlight}</span></div><div className="ceremony-copy"><h3>{ceremony.title}</h3><strong>{ceremony.summary}</strong><p>{ceremony.details}</p><div className="ceremony-meta"><span>◷ &nbsp;{ceremony.time}</span><span>▣ &nbsp;Live / Rishikesh</span></div><a href="#booking">Book {ceremony.title.split(' (')[0]} &nbsp; →</a></div></article>)}</div>
+          <div className="section-title-row"><div><span className="pill section-pill">SACRED CEREMONIES WE PROVIDE</span><h2>8 Signature Vedic Pujas & Sanskars</h2><p>Each ritual is performed with pure Vedic mantras, traditional विधि-विधान, and complete<br /> devotion for peace, protection, and family prosperity.</p></div><a href="#booking" className="button button-outline">Need a Custom Havan or Puja? Enquire Here →</a></div>
+          <div className="ceremony-grid">{ceremonies.map((ceremony, index) => <article key={ceremony.title} className="ceremony-card"><div className="ceremony-photo" style={{ backgroundImage: `linear-gradient(0deg, rgba(61, 25, 20, .96), transparent 62%), url("${ceremony.image}")` }}><span className="ceremony-type">#{String(index + 1).padStart(2, '0')} • {ceremony.type}</span><span className="ceremony-highlight">✧ &nbsp;{ceremony.highlight}</span></div><div className="ceremony-copy"><h3>{ceremony.title}</h3><strong>{ceremony.summary}</strong><p>{ceremony.details}</p><a href={whatsappHref(`Namaste, I would like to enquire about ${ceremony.title}. Please share details about the puja, available dates, and booking process.`)} target="_blank" rel="noreferrer">Enquire on WhatsApp &nbsp; →</a></div></article>)}</div>
         </section>
 
         <section id="pitru" className="pitru-section">
@@ -387,17 +442,18 @@ function App() {
 
         <section className="steps-section content-width section-space"><div className="steps-panel"><span className="eyebrow">SEAMLESS GLOBAL PARTICIPATION</span><h2>How Our Online Live-Streamed Rituals Work</h2><div className="steps-grid"><article><b>01</b><h3>Book & Share Family Details</h3><p>Select your required Puja or Kundali consultation and share your Name, Gotra, Nakshatra, and specific prayer intention.</p></article><article><b>02</b><h3>Individualized Vedic Sankalp</h3><p>At the auspicious Muhurat in holy Rishikesh, Acharya Deepak takes a solemn Vedic Sankalp in your name before the sacred altar.</p></article><article><b>03</b><h3>Join Live Stream & Receive Blessings</h3><p>Participate live via video call with your family during the Abhishek, Katha, and Purnahuti Havan from anywhere in the world.</p></article></div></div></section>
 
-        <section id="gallery" className="gallery-section section-space"><div className="content-width"><div className="section-title-row gallery-heading"><div><span className="pill section-pill">▧ &nbsp;SACRED GALLERY • RISHIKESH</span><h2>Divine Moments & Authentic<br />Rituals</h2><p>Explore glimpses of our Deity Pujas, Rudrabhishek, Pind Daan at Ganga Ghats, Vedic<br /> Weddings, and Live Online Sankalp ceremonies. Each photo is also connected to our<br /> Spiritual Blog guides.</p></div><label className="upload-button">⇧ &nbsp;+ Add / Preview Your Own Ritual Photo<input type="file" accept="image/*" multiple onChange={addPhoto} /></label></div><div className="filter-row">{galleryFilters.map((filter) => <button type="button" key={filter} onClick={() => setActiveFilter(filter)} className={activeFilter === filter ? 'filter-chip active' : 'filter-chip'}>{filter}</button>)}</div><div className="gallery-grid">{visibleGallery.map((item, index) => <article key={`${item.title}-${index}`} className="gallery-card"><button className="gallery-open" type="button" onClick={() => setSelectedImage(item)} aria-label={`View ${item.title}`}><img src={item.image} alt={item.title} /><span className="gallery-category">{item.category}</span><span className="gallery-caption"><small>⌖ &nbsp;{item.place}</small><strong>{item.title}</strong></span></button><div className="gallery-description"><p>{item.description}</p><div><button type="button" onClick={() => setActiveArticle(articles[index % articles.length])}>▤ Read Related Blog</button><a href="#booking">Book This Ritual →</a></div></div></article>)}</div></div></section>
+        <section id="gallery" className="gallery-section section-space"><div className="content-width"><div className="section-title-row gallery-heading"><div><span className="pill section-pill">▧ &nbsp;SACRED GALLERY • RISHIKESH</span><h2>Latest Divine Moments</h2><p>A glimpse of authentic rituals and sacred ceremonies from Rishikesh.</p></div><a href={galleryHref} className="button button-primary">View Gallery &nbsp; →</a></div><div className="gallery-grid gallery-preview-grid">{renderGalleryCards(latestGallery)}</div></div></section>
 
         <section id="blog" className="blog-section content-width section-space"><div className="center-heading"><span className="pill section-pill">▤ &nbsp;VEDIC WISDOM & RITUAL GUIDES</span><h2>Spiritual Blog & Sacred Insights from<br />Rishikesh</h2><p>In-depth articles connected to our ritual gallery—explaining the spiritual meaning of Pind Daan,<br /> Rudrabhishek, Vastu Puja, and Online Live Sankalp.</p></div><div className="article-grid">{articles.map((article) => <article key={article.title} className="article-card"><div className="article-image"><img src={article.image} alt="" /><span>{article.minutes}</span></div><div className="article-copy"><span className="eyebrow">{article.category}</span><h3>{article.title}</h3><p>{article.text}</p><div><button type="button" onClick={() => setActiveArticle(article)}>Read Full Article &nbsp; →</button><a href="#booking">{article.booking}</a></div></div></article>)}</div></section>
 
-        <section id="booking" className="booking-section"><div className="booking-inner content-width"><div className="booking-intro"><span className="pill gold-pill">♨ &nbsp;SACRED SANKALP BOOKING</span><h2>Book Your Online Ritual or Astrology Consultation</h2><p>All rituals are conducted online with live streaming and individualized Sankalp, or in-person at holy Rishikesh. Fill in your details below to schedule your ceremony with <strong>Acharya Deepak.</strong></p><div className="booking-benefits"><div><span>⌖</span><p><b>Sacred Location</b><small>Holy Banks of Maa Ganga, Rishikesh, Uttarakhand, India</small></p></div><div><span>▣</span><p><b>100% Live Streaming & Sankalp</b><small>Join via WhatsApp Video, Zoom, or Google Meet with your family from anywhere in the world.</small></p></div><div><span>◎</span><p><b>3 Languages Spoken</b><small>Ritual explanation & Kundali guidance available in Hindi, Sanskrit & English.</small></p></div></div></div><form className="booking-form" onSubmit={submitBooking}><div className="form-heading"><div><h3>Schedule Your Puja or Kundali Reading</h3><small>Individualized Sankalp • Pure Vedic Mantras • Holy Rishikesh</small></div><span>♧</span></div><div className="form-grid"><label>Your Full Name *<input name="name" required placeholder="e.g. Rajesh Sharma & Family" /></label><label>Phone / WhatsApp Number *<input name="phone" required type="tel" placeholder="e.g. +91 98765 43210" /></label><label>Select Sacred Ritual / Service *<select name="service" defaultValue={bookingServices[2]}>{bookingServices.map((service) => <option key={service}>{service}</option>)}</select></label><label>Ritual Mode *<select name="mode" defaultValue="Online Live Stream (Individualized Sankalp)"><option>Online Live Stream (Individualized Sankalp)</option><option>In-Person in Rishikesh</option></select></label><label>Gotra & Nakshatra (Optional)<input name="gotra" placeholder="e.g. Kashyap Gotra" /></label><label>Preferred Date<input name="date" type="date" /></label><label>Preferred Language<select name="language"><option>Hindi & Sanskrit</option><option>English</option><option>Hindi</option></select></label><label className="full-field">Special Prayer / Birth Details (for Kundali or Sankalp)<textarea name="message" rows={3} placeholder="Share your prayer intention, or Date/Time/Place of Birth for Kundali reading..." /></label></div>{notice && <p className="booking-notice" role="status">{notice}</p>}<button type="submit" className="button button-primary submit-booking">♨ &nbsp; Confirm Sacred Sankalp & Booking Request</button></form></div></section>
+        <section id="booking" className="booking-section"><div className="booking-inner content-width"><div className="booking-intro"><span className="pill gold-pill">♨ &nbsp;SACRED SANKALP BOOKING</span><h2>Book Your Online Ritual or Astrology Consultation</h2><p>All rituals are conducted online with live streaming and individualized Sankalp, or in-person at Saklani Vihaar, Dhalwala, Rishikesh. Fill in your details below to schedule your ceremony with <strong>Acharya Deepak.</strong></p><div className="booking-benefits"><div><span>⌖</span><p><b>Sacred Location</b><small>Saklani Vihaar, Dhalwala, Rishikesh</small></p></div><div><span>▣</span><p><b>100% Live Streaming & Sankalp</b><small>Join via WhatsApp Video, Zoom, or Google Meet with your family from anywhere in the world.</small></p></div><div><span>◎</span><p><b>3 Languages Spoken</b><small>Ritual explanation & Kundali guidance available in Hindi, Sanskrit & English.</small></p></div></div></div><form className="booking-form" onSubmit={submitBooking}><div className="form-heading"><div><h3>Schedule Your Puja or Kundali Reading</h3><small>Individualized Sankalp • Pure Vedic Mantras • Saklani Vihaar, Dhalwala, Rishikesh</small></div><span>♧</span></div><div className="form-grid"><label>Your Full Name *<input name="name" required placeholder="e.g. Rajesh Sharma & Family" /></label><label>Phone / WhatsApp Number *<input name="phone" required type="tel" placeholder="e.g. +91 98765 43210" /></label><label>Select Sacred Ritual / Service *<select name="service" defaultValue={bookingServices[2]}>{bookingServices.map((service) => <option key={service}>{service}</option>)}</select></label><label>Ritual Mode *<select name="mode" defaultValue="Online Live Stream (Individualized Sankalp)"><option>Online Live Stream (Individualized Sankalp)</option><option>In-Person in Rishikesh</option></select></label><label>Gotra & Nakshatra (Optional)<input name="gotra" placeholder="e.g. Kashyap Gotra" /></label><label>Preferred Date<input name="date" type="date" /></label><label>Preferred Language<select name="language"><option>Hindi & Sanskrit</option><option>English</option><option>Hindi</option></select></label><label className="full-field">Special Prayer / Birth Details (for Kundali or Sankalp)<textarea name="message" rows={3} placeholder="Share your prayer intention, or Date/Time/Place of Birth for Kundali reading..." /></label></div>{notice && <p className="booking-notice" role="status">{notice}</p>}<button type="submit" className="button button-primary submit-booking">♨ &nbsp; Confirm Sacred Sankalp & Booking Request</button></form></div></section>
       </main>
+      )}
 
-      <footer className="site-footer"><div className="footer-main content-width"><div className="footer-brand"><a href="#home" className="brand"><span className="brand-seal">♧</span><span><strong>Acharya Deepak Online Vedic & Rituals Rishikesh</strong></span></a><p>Your trusted destination for traditional Hindu rituals, ancestral peace (Pind Daan, Tarpan, Shraddh), Deity Pujas, and Janam Kundli guidance directly from holy Rishikesh with live streaming and individualized Sankalp.</p></div><div><h4>SACRED PUJAS</h4><a href="#ceremonies">1. Wedding Ceremony (Vivah Sanskar)</a><a href="#ceremonies">2. Griha Pravesh & Vastu Puja</a><a href="#ceremonies">3. Rudrabhishek (Mahamrityunjaya Path)</a><a href="#ceremonies">4. Satyanarayan Katha & Navagraha Puja</a><a href="#ceremonies">5. Mundan Sanskaar & Pind Daan Puja</a></div><div><h4>QUICK NAVIGATION</h4><a href="#about">About Acharya Deepak (8+ Yrs Exp)</a><a href="#services">4 Core Spiritual Pillars</a><a href="#gallery">Sacred Ritual Gallery</a><a href="#blog">Spiritual Blog & Guides</a><a href="#booking">Book Online Live Sankalp</a></div></div><div className="footer-bottom content-width"><span>© 2026 Acharya Deepak Online Vedic & Rituals Rishikesh. All Rights Reserved.</span><span>ॐ सर्वे भवन्तु सुखिनः</span></div></footer>
+      <footer className="site-footer"><div className="footer-main content-width"><div className="footer-brand"><a href={sectionHref('home')} className="brand"><span className="brand-seal">♧</span><span><strong>Acharya Deepak Online Vedic & Rituals Rishikesh</strong></span></a><p>Your trusted destination for traditional Hindu rituals, ancestral peace (Pind Daan, Tarpan, Shraddh), Deity Pujas, and Janam Kundli guidance directly from holy Rishikesh with live streaming and individualized Sankalp.</p></div><div><h4>SACRED PUJAS</h4><a href={sectionHref('ceremonies')}>1. Wedding Ceremony (Vivah Sanskar)</a><a href={sectionHref('ceremonies')}>2. Griha Pravesh & Vastu Puja</a><a href={sectionHref('ceremonies')}>3. Rudrabhishek (Mahamrityunjaya Path)</a><a href={sectionHref('ceremonies')}>4. Satyanarayan Katha & Navagraha Puja</a><a href={sectionHref('ceremonies')}>5. Mundan Sanskaar & Pind Daan Puja</a></div><div><h4>QUICK NAVIGATION</h4><a href={sectionHref('about')}>About Acharya Deepak (8+ Yrs Exp)</a><a href={sectionHref('services')}>4 Core Spiritual Pillars</a><a href={galleryHref}>Sacred Ritual Gallery</a><a href={sectionHref('blog')}>Spiritual Blog & Guides</a><a href={sectionHref('booking')}>Book Online Live Sankalp</a></div></div><div className="footer-bottom content-width"><span>© 2026 Acharya Deepak Online Vedic & Rituals Rishikesh. All Rights Reserved.</span><span>ॐ सर्वे भवन्तु सुखिनः</span></div></footer>
 
       {selectedImage && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedImage(null)}><div className="lightbox" role="dialog" aria-modal="true" aria-label={selectedImage.title} onClick={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setSelectedImage(null)} aria-label="Close image">×</button><img src={selectedImage.image} alt={selectedImage.title} /><div><span>{selectedImage.category}</span><h2>{selectedImage.title}</h2><p>{selectedImage.description}</p></div></div></div>}
-      {activeArticle && <div className="modal-backdrop" role="presentation" onClick={() => setActiveArticle(null)}><article className="article-modal" role="dialog" aria-modal="true" aria-label={activeArticle.title} onClick={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setActiveArticle(null)} aria-label="Close article">×</button><span className="eyebrow">{activeArticle.category} • {activeArticle.minutes}</span><h2>{activeArticle.title}</h2><p>{activeArticle.body}</p><a href="#booking" className="button button-primary" onClick={() => setActiveArticle(null)}>{activeArticle.booking} →</a></article></div>}
+      {activeArticle && <div className="modal-backdrop" role="presentation" onClick={() => setActiveArticle(null)}><article className="article-modal" role="dialog" aria-modal="true" aria-label={activeArticle.title} onClick={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setActiveArticle(null)} aria-label="Close article">×</button><span className="eyebrow">{activeArticle.category} • {activeArticle.minutes}</span><h2>{activeArticle.title}</h2><p>{activeArticle.body}</p><a href={sectionHref('booking')} className="button button-primary" onClick={() => setActiveArticle(null)}>{activeArticle.booking} →</a></article></div>}
     </>
   )
 }

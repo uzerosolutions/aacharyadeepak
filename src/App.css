@@ -52,6 +52,8 @@
 .site-header {
   min-height: 81px;
   padding: 10px max(calc((100vw - 1216px) / 2), 36px);
+  position: sticky;
+  top: 0;
   background: rgba(250, 246, 240, 0.96);
   border-bottom: 1px solid var(--line);
   display: flex;
@@ -313,54 +315,13 @@
   overflow: hidden;
 }
 
-.aurora-art {
+.hero-photo {
+  width: 100%;
+  height: 100%;
   position: absolute;
-  inset: 0 0 0;
-  background:
-    radial-gradient(ellipse at 23% 26%, #7edab15e 0, transparent 23%),
-    radial-gradient(ellipse at 72% 25%, #11d4a18c 0, transparent 20%),
-    radial-gradient(ellipse at 48% 42%, #0f8b7bba 0, transparent 38%),
-    radial-gradient(ellipse at 81% 55%, #52d48b93 0, transparent 25%),
-    linear-gradient(157deg, #071b20, #0c423c 44%, #171c25 68%, #42301f);
-}
-
-.aurora-art::before,
-.aurora-art::after {
-  position: absolute;
-  content: '';
-  top: -18%;
-  width: 46%;
-  height: 85%;
-  opacity: 0.67;
-  filter: blur(19px);
-  transform: rotate(17deg);
-  background: linear-gradient(90deg, transparent, #20d69b, #71f0a3a8, transparent);
-}
-
-.aurora-art::before {
-  left: 24%;
-}
-
-.aurora-art::after {
-  left: 60%;
-  top: 2%;
-  transform: rotate(-12deg);
-  opacity: 0.55;
-}
-
-.arch-label {
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 7px 20px;
-  border: 1px solid var(--gold);
-  border-radius: 99px;
-  background: var(--maroon);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
+  inset: 0;
+  object-fit: cover;
+  object-position: center 40%;
 }
 
 .arch-caption {
@@ -565,6 +526,7 @@
   width: 100%;
   height: 470px;
   object-fit: cover;
+  object-position: center top;
   display: block;
 }
 
@@ -1050,21 +1012,8 @@
   line-height: 1.7;
 }
 
-.ceremony-meta {
-  margin-top: auto;
-  padding: 12px 0;
-  border-top: 1px solid #f0dfbd;
-  display: flex;
-  justify-content: space-between;
-  color: #795d53;
-  font-size: 11px;
-}
-
-.ceremony-meta span:last-child {
-  color: var(--maroon);
-}
-
 .ceremony-copy > a {
+  margin-top: auto;
   min-height: 44px;
   display: grid;
   place-items: center;
@@ -1324,6 +1273,10 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
+}
+
+.gallery-preview-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .gallery-card {
@@ -1967,6 +1920,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .gallery-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .pitru-inner {
     grid-template-columns: 1.2fr 0.8fr;
     gap: 24px;
@@ -2162,6 +2119,7 @@
   .pillar-grid,
   .ceremony-grid,
   .gallery-grid,
+  .gallery-preview-grid,
   .article-grid,
   .steps-grid {
     grid-template-columns: 1fr;

@@ -30,3 +30,9 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Deploying to GitHub Pages
+
+The GitHub Actions workflow in `.github/workflows/deploy.yml` builds and deploys the site when changes are pushed to `main`. On first setup, open the repository's **Settings → Pages** and set the build and deployment source to **GitHub Actions**.
+
+The published site will be available at <https://uzerosolutions.github.io/aacharyadeepak/>. The workflow also publishes the gallery at `/gallery/`.
